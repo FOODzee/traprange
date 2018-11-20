@@ -41,6 +41,10 @@ public class Table {
         return toString(true);
     }
 
+    public String toCsv() {
+        return toString(false);
+    }
+
     //--------------------------------------------------------------------------
     //  Method binding
     //--------------------------------------------------------------------------
@@ -52,7 +56,7 @@ public class Table {
 
     //--------------------------------------------------------------------------
     //  Utils
-    private String toString(boolean inHtmlFormat) {
+    public String toString(boolean inHtmlFormat) {
         StringBuilder retVal = new StringBuilder();
         if (inHtmlFormat) {
             retVal.append("<!DOCTYPE html>"
@@ -83,7 +87,7 @@ public class Table {
                             if (cell.getIdx() != 0) {
                                 retVal.append(";");
                             }
-                            retVal.append(cell.getContent());
+                            retVal.append(cell.getContent().trim());
                         }
                         cellIdx++;
                         columnIdx++;

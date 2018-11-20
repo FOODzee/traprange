@@ -86,11 +86,17 @@ public class MAIN {
             //begin parsing pdf file
             List<Table> tables = extractor.extract();
 
+            boolean inHtmlFormat = !getBool(args, "csv");
+            boolean printPages = !getBool(args, "nopages");
             Writer writer = new OutputStreamWriter(new FileOutputStream(out), "UTF-8");
             try {
                 for (Table table : tables) {
-                    writer.write("Page: " + (table.getPageIdx() + 1) + "\n");
-                    writer.write(table.toHtml());
+                    if (printPages) {
+                        writer.write("Page: " + (table.getPageIdx() + 1) + "\n");
+                    } else {
+                        writer.write("\n");
+                    }
+                    writer.write(table.toString(inHtmlFormat));
                 }
             } finally {
                 try {
@@ -111,6 +117,8 @@ public class MAIN {
                 .append("\t-el: except lines. For example, to exept lines 1,2,3 and -1 (last line) in all pages and line 4 in page 8, the value shoud be: \"1,2,3,-1,4@8\"\n")
                 .append("\t-p: only parse these pages. Ex: 1,2,3\n")
                 .append("\t-ep: all pages except these pages. Ex: 1,2\n")
+                .append("\t-csv: to generate csv instead of html (default is html)\n")
+                .append("\t-nopages: disable generation of pages numbers (by default they are written in both html and csv modes)\n")
                 .append("\t-h: help\n")
                 .append("---");
         logger.info(help.toString());
@@ -190,7 +198,11 @@ public class MAIN {
         return retVal;
     }
 
-    private static String getArg(String[] args, String name, String defaultValue) {
+    private static boolean getBool(String[] args, String name) {
+        return getArgIdx(args, name) >= 0;
+    }
+
+    private static int getArgIdx(String[] args, String name) {
         int argIdx = -1;
         for (int idx = 0; idx < args.length; idx++) {
             if (("-" + name).equals(args[idx])) {
@@ -198,6 +210,11 @@ public class MAIN {
                 break;
             }
         }
+        return argIdx;
+    }
+
+    private static String getArg(String[] args, String name, String defaultValue) {
+        int argIdx = getArgIdx(args, name);
         if (argIdx == -1) {
             return defaultValue;
         } else if (argIdx < args.length - 1) {
